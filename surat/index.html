@@ -15,8 +15,8 @@
         <input type="text" class="form-control" id="nama" required />
       </div>
       <div class="mb-3">
-        <label for="nim" class="form-label">NIM</label>
-        <input type="text" class="form-control" id="nim" required />
+        <label for="nip" class="form-label">NIP</label>
+        <input type="text" class="form-control" id="nip" required />
       </div>
       <div class="mb-3">
         <label for="jabatan" class="form-label">Jabatan</label>
@@ -45,7 +45,7 @@
       statusDiv.innerText = "Memproses surat...";
 
       const nama = document.getElementById("nama").value;
-      const nim = document.getElementById("nim").value;
+      const nim = document.getElementById("nip").value;
       const jabatan = document.getElementById("jabatan").value;
       const isi = document.getElementById("isi").value;
       const tanggal = document.getElementById("tanggal").value;
@@ -55,7 +55,7 @@
           method: "POST",
           body: new URLSearchParams({
             nama,
-            nim,
+            nip,
             jabatan,
             isi,
             tanggal,
