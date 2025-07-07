@@ -2,69 +2,89 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Generator Surat Pernyataan</title>
-  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Form Surat</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 2rem;
+      background-color: #f0f0f0;
+    }
+    form {
+      max-width: 500px;
+      margin: auto;
+      background: white;
+      padding: 2rem;
+      border-radius: 10px;
+    }
+    input, select, button {
+      width: 100%;
+      padding: 10px;
+      margin: 0.5rem 0;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+    button {
+      background-color: #002db3;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .status {
+      margin-top: 10px;
+      font-size: 0.9em;
+    }
+  </style>
 </head>
-<body class="bg-gray-100 min-h-screen p-4">
-  <div class="max-w-xl mx-auto bg-white p-6 rounded shadow">
-    <h1 class="text-2xl font-bold mb-4">Surat Pernyataan</h1>
+<body>
 
-    <input type="text" id="nama" placeholder="Nama Lengkap" class="w-full mb-3 p-2 border rounded" />
-    <input type="text" id="nip" placeholder="NIP" class="w-full mb-3 p-2 border rounded" />
-    <input type="text" id="jabatan" placeholder="Jabatan" class="w-full mb-3 p-2 border rounded" />
-    <input type="text" id="isi" placeholder="Isi Pernyataan" class="w-full mb-3 p-2 border rounded" />
-    <input type="date" id="tanggal" class="w-full mb-3 p-2 border rounded" />
-
-    <button id="generateBtn" class="w-full px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
-      Buat Surat
-    </button>
-
-    <p id="status" class="mt-4 text-sm text-gray-600"></p>
-  </div>
+  <form id="suratForm">
+    <h2>Surat Generator</h2>
+    <input type="text" name="nama" placeholder="Nama" required />
+    <input type="text" name="nip" placeholder="NIP" required />
+    <input type="text" name="jabatan" placeholder="Jabatan" required />
+    <input type="text" name="isi" placeholder="Isi Surat" required />
+    <input type="date" name="tanggal" required />
+    <button type="submit">Buat Surat</button>
+    <p class="status" id="statusText"></p>
+  </form>
 
   <script>
-    const generateBtn = document.getElementById("generateBtn");
-    const statusText = document.getElementById("status");
+    const form = document.getElementById("suratForm");
+    const statusText = document.getElementById("statusText");
 
-    generateBtn.addEventListener("click", async () => {
-      const data = {
-        nama: document.getElementById("nama").value,
-        nip: document.getElementById("nip").value,
-        jabatan: document.getElementById("jabatan").value,
-        isi: document.getElementById("isi").value,
-        tanggal: document.getElementById("tanggal").value,
-      };
-
-      // Validasi sederhana
-      if (!data.nama || !data.nip || !data.jabatan || !data.isi || !data.tanggal) {
-        alert("Mohon lengkapi semua data terlebih dahulu.");
-        return;
-      }
-
+    form.addEventListener("submit", async function (e) {
+      e.preventDefault();
       statusText.textContent = "Memproses surat...";
 
+      const data = {
+        nama: form.nama.value,
+        nip: form.nip.value,
+        jabatan: form.jabatan.value,
+        isi: form.isi.value,
+        tanggal: form.tanggal.value
+      };
+
       try {
-        const res = await fetch("https://script.google.com/macros/s/AKfycbz5Mou8InBaT9pw-u9s1vJdndzogXY6xZPHRQNcLK5a-vCzFHGhD-avBXiEKx1cu-rO/exec", {
+        // Gunakan CORS proxy agar bisa fetch ke Apps Script dari GitHub Pages
+        const scriptURL = "https://script.google.com/macros/s/AKfycbz5Mou8InBaT9pw-u9s1vJdndzogXY6xZPHRQNcLK5a-vCzFHGhD-avBXiEKx1cu-rO/exec";
+        const proxyURL = "https://corsproxy.io/?" + encodeURIComponent(scriptURL);
+
+        const response = await fetch(proxyURL, {
           method: "POST",
-          body: JSON.stringify(data),
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(data)
         });
 
-        const url = await res.text();
-
-        if (url.startsWith("http")) {
-          statusText.textContent = "Surat berhasil dibuat! Sedang dibuka...";
-          window.open(url, "_blank");
-        } else {
-          statusText.textContent = "Gagal membuat surat.";
-          alert("Respons tidak valid: " + url);
-        }
+        const result = await response.text();
+        statusText.innerHTML = `✅ Surat berhasil dibuat: <a href="${result}" target="_blank">${result}</a>`;
       } catch (err) {
-        statusText.textContent = "Gagal membuat surat.";
-        alert("Terjadi kesalahan: " + err.message);
+        statusText.textContent = "❌ Gagal membuat surat: " + err;
       }
     });
   </script>
+
 </body>
 </html>
