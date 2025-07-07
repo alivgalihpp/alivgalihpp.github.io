@@ -24,7 +24,10 @@
   </div>
 
   <script>
-    document.getElementById("generateBtn").addEventListener("click", async () => {
+    const generateBtn = document.getElementById("generateBtn");
+    const statusText = document.getElementById("status");
+
+    generateBtn.addEventListener("click", async () => {
       const data = {
         nama: document.getElementById("nama").value,
         nip: document.getElementById("nip").value,
@@ -33,7 +36,13 @@
         tanggal: document.getElementById("tanggal").value,
       };
 
-      document.getElementById("status").textContent = "Memproses surat...";
+      // Validasi sederhana
+      if (!data.nama || !data.nip || !data.jabatan || !data.isi || !data.tanggal) {
+        alert("Mohon lengkapi semua data terlebih dahulu.");
+        return;
+      }
+
+      statusText.textContent = "Memproses surat...";
 
       try {
         const res = await fetch("https://script.google.com/macros/s/AKfycbz5Mou8InBaT9pw-u9s1vJdndzogXY6xZPHRQNcLK5a-vCzFHGhD-avBXiEKx1cu-rO/exec", {
@@ -43,10 +52,16 @@
         });
 
         const url = await res.text();
-        document.getElementById("status").textContent = "Surat berhasil dibuat!";
-        window.open(url, "_blank");
+
+        if (url.startsWith("http")) {
+          statusText.textContent = "Surat berhasil dibuat! Sedang dibuka...";
+          window.open(url, "_blank");
+        } else {
+          statusText.textContent = "Gagal membuat surat.";
+          alert("Respons tidak valid: " + url);
+        }
       } catch (err) {
-        document.getElementById("status").textContent = "Gagal membuat surat.";
+        statusText.textContent = "Gagal membuat surat.";
         alert("Terjadi kesalahan: " + err.message);
       }
     });
